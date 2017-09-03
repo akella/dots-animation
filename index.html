@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - orbit controls</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>*{margin:0;padding:0;}</style>
+
+		<style>
+			.tempcanvas{
+				position: fixed;
+				z-index: 9999;
+				top: 0;
+				left: 0;
+				background: red;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="container"></div>
+
+		<script src="js/three.js"></script>
+		<script src="js/tweenmax.js"></script>
+		<script src="js/OrbitControls.js"></script>
+		
+		<script>
+			let size = 50;
+			let canvas = document.createElement('canvas');
+			let ctx = canvas.getContext('2d');
+			canvas.width = size;
+			canvas.height = size;
+			canvas.classList.add('tempcanvas');
+			document.body.appendChild(canvas);
+
+
+			
+
+			function loadImages(paths,whenLoaded){
+			  var imgs=[];
+			  paths.forEach(function(path){
+			    var img = new Image;
+			    img.onload = function(){
+			      imgs.push(img);
+			      if (imgs.length==paths.length) whenLoaded(imgs);
+			    }
+			    img.src = path;
+			  });
+			}
+
+			function fillUp(array,max){
+
+				var length = array.length;
+				for(i=0;i<max-length;i++){
+					array.push(array[Math.floor(Math.random()*length)])
+				}
+				return array;
+			}
+			function shuffle(a) {
+			  for (let i = a.length; i; i--) {
+			    let j = Math.floor(Math.random() * i);
+					[a[i - 1], a[j]] = [a[j], a[i - 1]];
+			  }
+			  return a;
+			}
+
+			function getArrayFromImage(img){
+				let imageCoords = [];
+				ctx.clearRect(0,0,size,size);
+			    ctx.drawImage(img, 0, 0, size, size);
+			    let data = ctx.getImageData(0, 0, size, size);
+
+			    data = data.data;
+
+			    for(var y = 0; y < size; y++) {
+			      for(var x = 0; x < size; x++) {
+			        var red = data[((size * y) + x) * 4];
+			        var green = data[((size * y) + x) * 4 + 1];
+			        var blue = data[((size * y) + x) * 4 + 2];
+			        var alpha = data[((size * y) + x) * 4 + 3];
+				        if(alpha>0){
+				        	imageCoords.push([10*(x - size/2),10*(size/2 - y)]);
+				        }
+			        }
+			      }
+			      return shuffle(fillUp(imageCoords, 1500));
+			}
+
+
+			let images = ['img/place.svg','img/close.svg','img/arrow.svg'];
+			loadImages(images,function(loadedImages){
+				var gallery = [];
+				loadedImages.forEach(function(el,index){
+					gallery.push(getArrayFromImage(loadedImages[index]));
+				});
+				console.log(gallery);
+
+				var camera, controls, scene, renderer,geometry;
+
+				
+				function init() {
+
+					scene = new THREE.Scene();
+					scene.background = new THREE.Color( 0xcccccc );
+					// scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
+
+					renderer = new THREE.WebGLRenderer();
+					renderer.setPixelRatio( window.devicePixelRatio );
+					renderer.setSize( window.innerWidth, window.innerHeight );
+
+					var container = document.getElementById( 'container' );
+					container.appendChild( renderer.domElement );
+
+					camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 3000 );
+					camera.position.z = 500;
+
+					controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+
+					
+
+
+
+
+
+					// ЧТО ЕСТЬ НА СЦЕНЕ
+					var texture = (new THREE.TextureLoader).load("img/particle.png");
+					var material = new THREE.PointCloudMaterial({
+					  size: 5,
+					  vertexColors: THREE.VertexColors,
+					  map: texture,
+					  alphaTest: 0.5
+					});
+					
+					geometry = new THREE.Geometry();
+					var x, y, z;
+
+
+					// Точечки
+					// for (var i =0; i<=10000;i++) {
+					//   x = Math.sin(i/10)*100;
+					//   y = Math.cos(i/10)*100;
+					//   z = i;
+					  
+					//   geometry.vertices.push(new THREE.Vector3(x, y, z));
+					//   geometry.colors.push(new THREE.Color(Math.random(), Math.random(), Math.random()));
+					// };
+
+					gallery[0].forEach((el,index)=>{
+						geometry.vertices.push(new THREE.Vector3(el[0], el[1], Math.random()*100));
+						geometry.colors.push(new THREE.Color(Math.random(), Math.random(), Math.random()));
+					});
+					
+					var pointCloud = new THREE.PointCloud(geometry, material);
+					scene.add(pointCloud);
+					// Конец сцены
+
+					window.addEventListener( 'resize', onWindowResize, false );
+
+				}
+
+				function onWindowResize() {
+					camera.aspect = window.innerWidth / window.innerHeight;
+					camera.updateProjectionMatrix();
+					renderer.setSize( window.innerWidth, window.innerHeight );
+				}
+
+				
+
+
+				var i = 0;
+				function animate() {
+					i++;
+					requestAnimationFrame( animate );
+
+
+					geometry.vertices.forEach( function(particle, index){
+					  var dX, dY, dZ;
+					  dX = Math.sin(i/10 + index/2)/10;
+					  dY = 0;
+					  dZ = 0;
+					  particle.add(new THREE.Vector3(dX, dY, dZ));
+					});
+					geometry.verticesNeedUpdate = true;
+					
+
+					render();
+
+				}
+
+				
+				
+
+				function render() {
+					renderer.render( scene, camera );
+				}
+
+				init();
+				animate();
+
+				var current =0;
+				document.body.addEventListener('click',function(){
+					current++;
+					current = current % gallery.length;
+					geometry.vertices.forEach( function(particle, index){
+						let tl = new TimelineMax();
+						tl.to(particle,1,{x:gallery[current][index][0],y:gallery[current][index][1]});
+					})
+				})
+
+
+
+
+
+			});
+
+
+
+
+
+		
+			    
+
+			      
+
+			
+
+
+
+
+			
+
+
+
+
+
+		
+
+		</script>
+
+	</body>
+</html>

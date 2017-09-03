@@ -1,0 +1,27 @@
+{
+  "name": "sexyshader",
+  "version": "1.0.0",
+  "description": "Sexy shader example",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akella/SexyFragmentShaderAss.git"
+  },
+  "keywords": [
+    "fragment",
+    "shader"
+  ],
+  "author": "Yuri Artiukh <akella.a@gmail.com> (http://riverco.de)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akella/SexyFragmentShaderAss/issues"
+  },
+  "homepage": "https://github.com/akella/SexyFragmentShaderAss#readme",
+  "dependencies": {
+    "express": "^4.15.3"
+  }
+}
