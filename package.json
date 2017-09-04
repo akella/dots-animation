@@ -1,7 +1,7 @@
 {
-  "name": "sexyshader",
+  "name": "svgDots",
   "version": "1.0.0",
-  "description": "Sexy shader example",
+  "description": "Svg dots animation",
   "main": "index.js",
   "scripts": {
     "start": "node server.js"
@@ -9,7 +9,7 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akella/SexyFragmentShaderAss.git"
+    "url": "git+https://github.com/akella/dots-animation.git"
   },
   "keywords": [
     "fragment",
@@ -18,9 +18,9 @@
   "author": "Yuri Artiukh <akella.a@gmail.com> (http://riverco.de)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/akella/SexyFragmentShaderAss/issues"
+    "url": "https://github.com/akella/dots-animation/issues"
   },
-  "homepage": "https://github.com/akella/SexyFragmentShaderAss#readme",
+  "homepage": "https://github.com/akella/dots-animation#readme",
   "dependencies": {
     "express": "^4.15.3"
   }
